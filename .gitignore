@@ -1,0 +1,39 @@
+# ── OS files ──────────────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# ── Editor & IDE ───────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── Chrome Extension — NEVER commit these ─────────────────────────────────────
+*.pem          # private key generated when packing the extension
+*.crx          # packed extension file
+
+# ── Node.js (if a build step is added later) ──────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# ── Build output (if a bundler is added later) ────────────────────────────────
+dist/
+build/
+
+# ── Environment & secrets ─────────────────────────────────────────────────────
+.env
+.env.local
+.env*.local
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+
+# ── Graphify ──────────────────────────────────────────────────────────────────
+graphify-out/
