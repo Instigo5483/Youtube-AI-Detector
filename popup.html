@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube AI & Bot Detector</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+
+  <header class="header">
+    <img src="icons/icon48.png" alt="Extension icon" class="logo">
+    <div class="header-text">
+      <h1>YT AI &amp; Bot Detector</h1>
+      <p class="subtitle">Protecting your YouTube experience</p>
+    </div>
+  </header>
+
+  <section class="section">
+    <h2 class="section-title">Modules</h2>
+
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <span class="module-icon">💬</span>
+        <div>
+          <strong>Comment Bot Scanner</strong>
+          <small>Flags spam &amp; bot comments</small>
+        </div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="toggle-comments">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <span class="module-icon">🎬</span>
+        <div>
+          <strong>AI Video Detector</strong>
+          <small>Badges AI-generated video cards</small>
+        </div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="toggle-videos">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <span class="module-icon">📱</span>
+        <div>
+          <strong>AI Shorts Scanner</strong>
+          <small>Warns on AI-generated Shorts</small>
+        </div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="toggle-shorts">
+        <span class="slider"></span>
+      </label>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Status Legend</h2>
+    <div class="legend">
+      <div class="legend-row">
+        <span class="legend-badge ok">OK</span>
+        <span class="legend-desc">Human-made content</span>
+      </div>
+      <div class="legend-row">
+        <span class="legend-badge ai">AI</span>
+        <span class="legend-desc">Likely AI-generated content</span>
+      </div>
+      <div class="legend-row">
+        <span class="legend-badge bot">BOT</span>
+        <span class="legend-desc">Spam or bot comment</span>
+      </div>
+      <div class="legend-row">
+        <span class="legend-badge human">HUMAN</span>
+        <span class="legend-desc">Human-written comment</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Flagged Channels</h2>
+    <p class="section-desc">Channels added here are always flagged regardless of title keywords.</p>
+    <div class="channel-input-row">
+      <input type="text" id="channel-input" placeholder="Channel name or keyword…" autocomplete="off" spellcheck="false">
+      <button id="add-channel">Add</button>
+    </div>
+    <ul id="channel-list" class="channel-list"></ul>
+    <p id="no-channels" class="empty-msg">No channels flagged yet.</p>
+  </section>
+
+  <footer class="footer">
+    <span class="version">v1.0.0</span>
+    <button id="rescan-btn" class="link-btn" title="Clear processed markers and re-scan the current page">Re-scan Page</button>
+  </footer>
+
+  <script src="popup.js"></script>
+</body>
+</html>

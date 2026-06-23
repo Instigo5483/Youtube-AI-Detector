@@ -1,0 +1,341 @@
+/* ── Reset ──────────────────────────────────────────────────────────────── */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Base ───────────────────────────────────────────────────────────────── */
+
+body {
+  width: 320px;
+  font-family: 'Roboto', 'YouTube Sans', system-ui, sans-serif;
+  background: #0f0f0f;
+  color: #f1f1f1;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #1a1a1a;
+  border-bottom: 1px solid #272727;
+}
+
+.logo {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.header h1 {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ff4d4d;
+  letter-spacing: 0.2px;
+}
+
+.subtitle {
+  font-size: 11px;
+  color: #888;
+  margin-top: 1px;
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.section {
+  padding: 12px 16px;
+  border-bottom: 1px solid #1f1f1f;
+}
+
+.section-title {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.section-desc {
+  font-size: 11px;
+  color: #666;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+/* ── Toggle rows ────────────────────────────────────────────────────────── */
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 0;
+}
+
+.toggle-row + .toggle-row {
+  border-top: 1px solid #1a1a1a;
+}
+
+.toggle-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.module-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.toggle-info strong {
+  display: block;
+  font-size: 12px;
+  color: #e0e0e0;
+  font-weight: 600;
+}
+
+.toggle-info small {
+  display: block;
+  font-size: 11px;
+  color: #666;
+  margin-top: 1px;
+}
+
+/* ── Toggle switch ──────────────────────────────────────────────────────── */
+
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 38px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.slider {
+  position: absolute;
+  inset: 0;
+  background-color: #333;
+  border-radius: 22px;
+  cursor: pointer;
+  transition: background-color 0.18s ease;
+}
+
+.slider::before {
+  content: '';
+  position: absolute;
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  top: 3px;
+  background-color: #888;
+  border-radius: 50%;
+  transition: transform 0.18s ease, background-color 0.18s ease;
+}
+
+input:checked + .slider {
+  background-color: #c0392b;
+}
+
+input:checked + .slider::before {
+  transform: translateX(16px);
+  background-color: #fff;
+}
+
+.toggle:focus-within .slider {
+  outline: 2px solid #ff4d4d;
+  outline-offset: 2px;
+}
+
+/* ── Channel input ──────────────────────────────────────────────────────── */
+
+.channel-input-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+#channel-input {
+  flex: 1;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 4px;
+  color: #f1f1f1;
+  padding: 6px 10px;
+  font-size: 12px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+#channel-input:focus {
+  border-color: #ff4d4d;
+}
+
+#channel-input::placeholder {
+  color: #444;
+}
+
+#add-channel {
+  background: #ff4d4d;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+#add-channel:hover {
+  background: #e03030;
+}
+
+#add-channel:active {
+  background: #c02020;
+}
+
+/* ── Channel list ───────────────────────────────────────────────────────── */
+
+.channel-list {
+  list-style: none;
+  max-height: 110px;
+  overflow-y: auto;
+}
+
+.channel-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.channel-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.channel-list::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+
+.channel-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 0;
+  border-bottom: 1px solid #1a1a1a;
+  font-size: 12px;
+  color: #bbb;
+  gap: 6px;
+}
+
+.channel-list li:last-child {
+  border-bottom: none;
+}
+
+.channel-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.remove-btn {
+  background: none;
+  border: none;
+  color: #444;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  padding: 0 2px;
+  transition: color 0.15s;
+  flex-shrink: 0;
+}
+
+.remove-btn:hover {
+  color: #ff4d4d;
+}
+
+.empty-msg {
+  font-size: 11px;
+  color: #444;
+  text-align: center;
+  padding: 6px 0 2px;
+}
+
+/* ── Footer ─────────────────────────────────────────────────────────────── */
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+}
+
+.version {
+  font-size: 11px;
+  color: #444;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.link-btn:hover {
+  color: #ff4d4d;
+}
+
+/* ── Status legend ──────────────────────────────────────────────────────── */
+
+.legend {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.4px;
+  min-width: 44px;
+  font-family: 'Roboto', monospace;
+}
+
+.legend-badge.ok    { background: rgba(39,174,96,0.12);  color:#2ecc71; border:1px solid rgba(46,204,113,0.40); }
+.legend-badge.ai    { background: rgba(230,126,34,0.12); color:#f39c12; border:1px solid rgba(243,156,18,0.40); }
+.legend-badge.bot   { background: rgba(231,76,60,0.12);  color:#e74c3c; border:1px solid rgba(231,76,60,0.40); }
+.legend-badge.human { background: rgba(127,140,141,0.08);color:#aab7b8; border:1px solid rgba(170,183,184,0.30); }
+
+.legend-desc {
+  font-size: 11px;
+  color: #888;
+}
