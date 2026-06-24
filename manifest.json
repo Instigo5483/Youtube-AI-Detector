@@ -1,10 +1,12 @@
 {
   "manifest_version": 3,
   "name": "YouTube AI & Bot Detector",
-  "version": "1.0.0",
-  "description": "Detects AI-generated videos, Shorts, and bot comments on YouTube with inline warning badges.",
+  "version": "3.0.0",
+  "description": "Detects AI-written and bot/spam comments on YouTube with inline warning badges.",
   "permissions": ["activeTab", "storage", "scripting"],
-  "host_permissions": ["https://*.youtube.com/*"],
+  "host_permissions": [
+    "https://*.youtube.com/*"
+  ],
   "background": {
     "service_worker": "background.js"
   },

@@ -21,12 +21,6 @@
 
 /* ── Status colours ──────────────────────────────────────────────────────── */
 
-.ytabd-ok {
-    background: rgba(39, 174, 96, 0.12);
-    color: #27ae60;
-    border: 1px solid rgba(39, 174, 96, 0.40);
-}
-
 .ytabd-ai {
     background: rgba(230, 126, 34, 0.12);
     color: #e67e22;
@@ -46,11 +40,6 @@
 }
 
 /* Slightly brighter on dark backgrounds (YouTube's dark UI) */
-html[dark] .ytabd-ok,
-[dark] .ytabd-ok {
-    color: #2ecc71;
-    border-color: rgba(46, 204, 113, 0.50);
-}
 html[dark] .ytabd-ai,
 [dark] .ytabd-ai {
     color: #f39c12;
@@ -68,54 +57,6 @@ html[dark] .ytabd-human,
 }
 
 
-/* ── Watch-page title badge ─────────────────────────────────────────────────
-   Injected inline after the h1 video title on /watch pages.
-   ────────────────────────────────────────────────────────────────────────── */
-.ytabd-video-title {
-    font-size: 12px;
-    padding: 2px 8px;
-    margin-left: 10px;
-    vertical-align: middle;
-    border-radius: 4px;
-}
-
-/* ── Shorts channel-bar row fix ─────────────────────────────────────────────
-   subscribe's parent is flex-column (name stacked above subscribe).
-   This class forces it to flex-row so the badge sits inline to the right.
-   ────────────────────────────────────────────────────────────────────────── */
-.ytabd-short-row {
-    display: inline-flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    flex-wrap: nowrap !important;
-    gap: 6px !important;
-    overflow: visible !important;
-}
-
-/* ── Shorts badge ───────────────────────────────────────────────────────────
-   Sits inline to the right of the Subscribe button inside the channel bar.
-   ────────────────────────────────────────────────────────────────────────── */
-.ytabd-shorts {
-    display: inline-flex;
-    align-items: center;
-    align-self: center;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.5px;
-    white-space: nowrap;
-    flex-shrink: 0;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
-    /* Dark tinted pill so text stays readable over any video frame */
-    background: rgba(0, 0, 0, 0.65) !important;
-    border: none !important;
-}
-
-.ytabd-shorts.ytabd-ok    { color: #2ecc71; }
-.ytabd-shorts.ytabd-ai    { color: #f39c12; }
-.ytabd-shorts.ytabd-bot   { color: #e74c3c; }
-.ytabd-shorts.ytabd-human { color: #aab7b8; }
 
 /* ── Comment timestamp badge ────────────────────────────────────────────────
    Sits immediately after the "3 weeks ago" link inside #published-time-text.
@@ -125,4 +66,269 @@ html[dark] .ytabd-human,
     font-size: 10px;
     padding: 1px 5px;
     vertical-align: middle;
+}
+
+/* ── Clickable badge ─────────────────────────────────────────────────────── */
+.ytabd-clickable {
+    cursor: pointer !important;
+    transition: opacity 0.12s, box-shadow 0.12s !important;
+}
+.ytabd-clickable:hover {
+    opacity: 0.75;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+/* ── Analysis side panel ─────────────────────────────────────────────────── */
+
+#ytabd-panel {
+    position: fixed;
+    z-index: 9999999;
+    background: #1e1e20;
+    color: #e5e5ea;
+    font-family: 'Roboto', 'YouTube Sans', system-ui, sans-serif;
+    font-size: 13px;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 12px 40px rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.18s, transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#ytabd-panel.ytabd-panel-visible {
+    pointer-events: all;
+    opacity: 1;
+}
+
+/* ── Dock positions ── */
+
+.ytabd-panel-right {
+    right: 0; top: 0; bottom: 0;
+    width: 340px;
+    border-left: 1px solid rgba(255, 255, 255, 0.09);
+    transform: translateX(110%);
+}
+.ytabd-panel-left {
+    left: 0; top: 0; bottom: 0;
+    width: 340px;
+    border-right: 1px solid rgba(255, 255, 255, 0.09);
+    transform: translateX(-110%);
+}
+.ytabd-panel-top {
+    top: 0; left: 0; right: 0;
+    height: 280px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+    transform: translateY(-110%);
+}
+.ytabd-panel-bottom {
+    bottom: 0; left: 0; right: 0;
+    height: 280px;
+    border-top: 1px solid rgba(255, 255, 255, 0.09);
+    transform: translateY(110%);
+}
+
+.ytabd-panel-right.ytabd-panel-visible,
+.ytabd-panel-left.ytabd-panel-visible  { transform: translateX(0); }
+.ytabd-panel-top.ytabd-panel-visible,
+.ytabd-panel-bottom.ytabd-panel-visible { transform: translateY(0); }
+
+/* ── Header ── */
+
+.ytabd-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: #28282c;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    flex-shrink: 0;
+}
+
+.ytabd-panel-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: #8e8e93;
+}
+
+.ytabd-panel-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.ytabd-dock-btn,
+#ytabd-close {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    color: #8e8e93;
+    cursor: pointer;
+    font-size: 10px;
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    flex-shrink: 0;
+    transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.ytabd-dock-btn:hover,
+#ytabd-close:hover {
+    background: rgba(255, 255, 255, 0.10);
+    color: #fff;
+}
+
+.ytabd-dock-active {
+    background: rgba(255, 159, 10, 0.15) !important;
+    border-color: rgba(255, 159, 10, 0.40) !important;
+    color: #ff9f0a !important;
+}
+
+
+/* ── Scrollable body ── */
+
+.ytabd-panel-body {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    scrollbar-width: thin;
+    scrollbar-color: #48484a transparent;
+}
+
+/* Horizontal flow for top/bottom docking */
+.ytabd-panel-top .ytabd-panel-body,
+.ytabd-panel-bottom .ytabd-panel-body {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: 16px 24px;
+}
+
+.ytabd-panel-top .ytabd-panel-section,
+.ytabd-panel-bottom .ytabd-panel-section {
+    min-width: 200px;
+    flex: 1;
+}
+
+/* ── Result row ── */
+
+.ytabd-panel-result {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ytabd-panel-result .ytabd-badge {
+    font-size: 13px;
+    padding: 3px 12px;
+    border-radius: 5px;
+    cursor: default;
+}
+
+.ytabd-panel-type {
+    font-size: 13px;
+    color: #8e8e93;
+    font-weight: 500;
+}
+
+/* ── Sections ── */
+
+.ytabd-panel-section {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.ytabd-panel-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+    color: #48484a;
+}
+
+.ytabd-panel-value {
+    font-size: 13px;
+    color: #e5e5ea;
+    font-weight: 500;
+}
+
+.ytabd-panel-hint {
+    font-size: 11px;
+    color: #636366;
+    line-height: 1.5;
+}
+
+.ytabd-panel-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.05);
+    margin: 3px 0;
+}
+
+/* ── Score rows ── */
+
+.ytabd-score-row {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.ytabd-score-label {
+    font-size: 12px;
+    color: #aeaeb2;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.ytabd-score-total .ytabd-score-label {
+    color: #e5e5ea;
+    font-weight: 600;
+}
+
+.ytabd-weight {
+    font-size: 10px;
+    color: #48484a;
+}
+
+/* ── Progress bars ── */
+
+.ytabd-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ytabd-bar-track {
+    flex: 1;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.07);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.ytabd-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ytabd-bar-hi { background: #ff9f0a; }
+.ytabd-bar-lo { background: #30d158; }
+
+.ytabd-bar-val {
+    font-size: 11px;
+    font-weight: 600;
+    color: #8e8e93;
+    min-width: 30px;
+    text-align: right;
 }

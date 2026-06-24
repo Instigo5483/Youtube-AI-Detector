@@ -3,12 +3,8 @@
 chrome.runtime.onInstalled.addListener(({ reason }) => {
   if (reason === 'install') {
     chrome.storage.local.set({
-      flaggedChannels: [],
-      moduleState: {
-        comments: true,
-        videos: true,
-        shorts: true,
-      },
+      moduleState: { comments: true },
+      panelDock: 'right',
     });
   }
 });
