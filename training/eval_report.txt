@@ -1,0 +1,5 @@
+CV F1 macro:    0.950 ± 0.027
+CV F1 weighted: 0.950 ± 0.027
+Training set:   222 examples — {'ai': 75, 'human': 73, 'bot': 74}
+Vocab size:     500
+Model size:     45.3 KB

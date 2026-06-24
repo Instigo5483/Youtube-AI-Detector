@@ -84,6 +84,66 @@
     return _clamp(all.filter(p => p === ',' || p === '.').length / all.length, 0, 1);
   }
 
+  // ── Classifier (TF-IDF + Logistic Regression, lazy-loaded) ──────────────────
+  let _clf = null;
+
+  fetch(chrome.runtime.getURL('classifier_model.json'))
+    .then(r => r.json())
+    .then(m => { _clf = m; })
+    .catch(() => {});
+
+  function _clfPreprocess(text) {
+    text = text.toLowerCase();
+    text = text.replace(/https?:\/\/\S+|www\.\S+/g, ' url ');
+    text = text.replace(/[\+]?[\d][\d\s\-\.\(\)]{8,}\d/g, ' phone ');
+    text = text.replace(/@\w{3,}/g, ' handle ');
+    text = text.replace(/t\.me\/\S+|wa\.me\/\S+|bit\.ly\/\S+|tinyurl\.com\/\S+|rb\.gy\/\S+|cutt\.ly\/\S+|ow\.ly\/\S+/g, ' shortlink ');
+    text = text.replace(/(.)\1{5,}/g, '$1$1$1');
+    text = text.replace(/[^\w\s]/g, ' ');
+    return text.trim();
+  }
+
+  function _clfTokenize(text) {
+    const words = text.split(/\s+/).filter(w => w.length > 0);
+    const tokens = [...words];
+    for (let i = 0; i < words.length - 1; i++) tokens.push(words[i] + ' ' + words[i + 1]);
+    return tokens;
+  }
+
+  function _clfPredict(text) {
+    if (!_clf || text.length < 8) return null;
+    const tokens = _clfTokenize(_clfPreprocess(text));
+    const tf = {};
+    for (const t of tokens) {
+      if (t in _clf.vocab) tf[t] = (tf[t] || 0) + 1;
+    }
+    const vec = new Float64Array(_clf.idf.length);
+    let norm = 0;
+    for (const [t, count] of Object.entries(tf)) {
+      const idx = _clf.vocab[t];
+      const v = (1 + Math.log(count)) * _clf.idf[idx];
+      vec[idx] = v;
+      norm += v * v;
+    }
+    norm = Math.sqrt(norm);
+    if (norm > 0) for (let i = 0; i < vec.length; i++) vec[i] /= norm;
+    const scores = _clf.intercept.map((b, c) => {
+      let s = b;
+      for (let i = 0; i < vec.length; i++) s += vec[i] * _clf.coef[c][i];
+      return s;
+    });
+    const max = Math.max(...scores);
+    const exp = scores.map(s => Math.exp(s - max));
+    const sum = exp.reduce((a, b) => a + b, 0);
+    const probs = exp.map(e => e / sum);
+    const best = probs.indexOf(Math.max(...probs));
+    return {
+      label: _clf.classes[best],
+      confidence: Math.round(probs[best] * 100),
+      probs: Object.fromEntries(_clf.classes.map((c, i) => [c, Math.round(probs[i] * 100)])),
+    };
+  }
+
   // ── Runtime state ──────────────────────────────────────────────────────────
   let commentsEnabled = true;
   let panelDock       = 'right';
@@ -185,11 +245,21 @@
       html += _section('Detection method',
         `<div class="ytabd-panel-value">Bot / spam pattern</div>` +
         `<div class="ytabd-panel-hint">The comment matched a known spam pattern: crypto or trading scam, phone number, link shortener, repeated characters, or solicitation phrase.</div>`);
+    } else if (meta.method === 'classifier' && meta.probs) {
+      const p = meta.probs;
+      html += _section('Detection method',
+        `<div class="ytabd-panel-value">Trained classifier</div>` +
+        `<div class="ytabd-panel-hint">TF-IDF + Logistic Regression trained on labeled YouTube comments. Confidence: ${meta.confidence}%</div>`);
+      html += _section('Class probabilities',
+        _scoreRow('AI-generated',  p.ai    ?? 0, null, 'Generic, perfect grammar, no specific references') +
+        _scoreRow('Bot / spam',    p.bot   ?? 0, null, 'Promotional, links, phone numbers, solicitation') +
+        _scoreRow('Human-written', p.human ?? 0, null, 'Informal, personal, references specific content')
+      );
     } else if (meta.method === 'linguistic' && meta.scores) {
       const s = meta.scores;
       html += _section('Detection method',
-        `<div class="ytabd-panel-value">Linguistic analysis — Checker-AI</div>` +
-        `<div class="ytabd-panel-hint">Four LLM-tell signals are weighted into a 0–100 AI probability score. Threshold: 60.</div>`);
+        `<div class="ytabd-panel-value">Linguistic analysis (fallback)</div>` +
+        `<div class="ytabd-panel-hint">Classifier not yet loaded or confidence too low. Four LLM-tell signals weighted into a 0–100 AI score. Threshold: 60.</div>`);
       html += _section('Score breakdown',
         _scoreRow('Sentence burstiness',   s.burstiness,            35, 'Uniform sentence lengths → AI') +
         _scoreRow('Lexical diversity',      s.lexicalDiversity,      30, 'Narrow vocabulary → AI') +
@@ -231,9 +301,16 @@
       return { status: 'human', method: 'linguistic',
         scores: { burstiness: 0, lexicalDiversity: 0, fillerPhrases: 0, punctuationUniformity: 0, total: 0 } };
     }
+    // Stage 1: bot-pattern regex (fast, always runs)
     for (const p of BOT_PATTERNS) {
       if (p.test(text)) return { status: 'bot', method: 'bot-pattern' };
     }
+    // Stage 2: trained classifier (when model is loaded)
+    const clf = _clfPredict(text);
+    if (clf && clf.confidence >= 65) {
+      return { status: clf.label, method: 'classifier', confidence: clf.confidence, probs: clf.probs };
+    }
+    // Stage 3: linguistic fallback (model not yet loaded, or low-confidence prediction)
     const sentences = _tokenizeSentences(text);
     const words     = _tokenizeWords(text);
     const b = _burstinessScore(sentences);
