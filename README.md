@@ -7,9 +7,11 @@ A Chrome Extension (Manifest V3) that scans YouTube comments in real time and la
 ## Features
 
 - **Comment Scanning** — shows `BOT`, `AI`, or `HUMAN` badge next to every comment timestamp
+- **3-Stage Detection** — regex bot patterns → trained ML classifier → linguistic fallback, in order
+- **Trained Classifier** — TF-IDF + Logistic Regression trained on 222 labeled YouTube comments (CV F1: 95%)
 - **Detection Report Panel** — click any badge to open a detailed panel showing exactly how and why the comment was flagged
 - **4-Side Dockable Panel** — dock the report panel to the right, left, top, or bottom of the screen (like Chrome DevTools)
-- **Score Breakdown** — animated bars showing burstiness, lexical diversity, filler phrases, and punctuation uniformity
+- **Probability Bars** — animated AI / Bot / Human probability bars for classifier results
 - **Module Toggle** — enable/disable comment scanning from the popup
 - **Re-scan Button** — force a fresh scan of the current page
 - **Dark theme aware** — badge colours adjust automatically for YouTube's dark UI
@@ -28,7 +30,7 @@ A Chrome Extension (Manifest V3) that scans YouTube comments in real time and la
 
 ## Detection Logic
 
-Comment analysis runs in two stages:
+Comment analysis runs in three stages, in order:
 
 ### Stage 1 — Bot Pattern Matching
 If any of these patterns match, the comment is immediately flagged `BOT`:
@@ -44,8 +46,19 @@ If any of these patterns match, the comment is immediately flagged `BOT`:
 - Promotional hashtag spam
 - Suspicious external links
 
-### Stage 2 — Linguistic Analysis
-Comments that pass Stage 1 are scored across four dimensions (0–100 each):
+### Stage 2 — Trained Classifier
+Comments that pass Stage 1 are run through a trained ML model (TF-IDF + Logistic Regression) trained on 222 labeled YouTube comments. It outputs a 3-class probability distribution:
+
+| Class | Meaning |
+|-------|---------|
+| `AI` | Generic praise, perfect grammar, no typos, filler phrases |
+| `BOT` | Promotional links, phone numbers, solicitation |
+| `HUMAN` | Informal, personal, references specific content |
+
+If the top-class confidence is ≥ 65%, that label is used. The Detection Report panel shows animated probability bars for all three classes.
+
+### Stage 3 — Linguistic Analysis (Fallback)
+Used only when the classifier confidence is below 65% (or the model hasn't loaded yet). Scores comments across four dimensions (0–100 each):
 
 | Signal | Weight | High score means… |
 |--------|--------|-------------------|
@@ -56,7 +69,7 @@ Comments that pass Stage 1 are scored across four dimensions (0–100 each):
 
 A combined score ≥ 60 is flagged `AI`; below 60 is `HUMAN`.
 
-Clicking a badge opens the **Detection Report** panel with the full score breakdown and an explanation of each signal.
+Clicking any badge opens the **Detection Report** panel showing which stage flagged the comment and the full evidence breakdown.
 
 ---
 
@@ -79,6 +92,8 @@ Clicking a badge opens the **Detection Report** panel with the full score breakd
 - `chrome.storage.local` for settings persistence
 - `MutationObserver` + `yt-navigate-finish` for YouTube SPA compatibility
 - `WeakMap` for per-badge metadata (no memory leaks)
+- `classifier_model.json` — 45 KB TF-IDF + Logistic Regression model (trained with scikit-learn, inferred in pure JS)
+- `training/` — labeled dataset (222 comments) and training script (`python train.py`)
 
 ---
 
