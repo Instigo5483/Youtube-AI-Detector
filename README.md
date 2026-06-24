@@ -1,17 +1,17 @@
 # YouTube AI & Bot Detector
 
-A Chrome Extension (Manifest V3) that scans YouTube in real time and labels videos, Shorts, and comments with inline status badges — so you can tell at a glance whether content is human-made or AI-generated, and whether a comment is written by a real person or a bot.
+A Chrome Extension (Manifest V3) that scans YouTube comments in real time and labels them with inline status badges — so you can tell at a glance whether a comment is written by a real person, AI-generated, or posted by a bot.
 
 ---
 
 ## Features
 
-- **Watch Page** — shows `OK` or `AI` badge inline next to the video title
-- **Shorts** — shows `OK` or `AI` badge next to the Subscribe button in the channel bar
-- **Comments** — shows `BOT`, `AI`, or `HUMAN` badge next to every comment timestamp
-- **Flagged Channels** — manually flag any channel to always mark it as `AI`
-- **Module Toggles** — enable/disable Comments, Videos, and Shorts scanning independently
-- **Re-scan Button** — force a fresh scan of the current page from the popup
+- **Comment Scanning** — shows `BOT`, `AI`, or `HUMAN` badge next to every comment timestamp
+- **Detection Report Panel** — click any badge to open a detailed panel showing exactly how and why the comment was flagged
+- **4-Side Dockable Panel** — dock the report panel to the right, left, top, or bottom of the screen (like Chrome DevTools)
+- **Score Breakdown** — animated bars showing burstiness, lexical diversity, filler phrases, and punctuation uniformity
+- **Module Toggle** — enable/disable comment scanning from the popup
+- **Re-scan Button** — force a fresh scan of the current page
 - **Dark theme aware** — badge colours adjust automatically for YouTube's dark UI
 
 ---
@@ -20,8 +20,7 @@ A Chrome Extension (Manifest V3) that scans YouTube in real time and labels vide
 
 | Badge | Colour | Meaning |
 |-------|--------|---------|
-| `OK` | Green | Appears to be human-made content |
-| `AI` | Orange | Likely AI-generated content |
+| `AI` | Orange | Likely AI-generated comment |
 | `BOT` | Red | Spam or bot comment detected |
 | `HUMAN` | Gray | Appears to be written by a real person |
 
@@ -29,36 +28,35 @@ A Chrome Extension (Manifest V3) that scans YouTube in real time and labels vide
 
 ## Detection Logic
 
-### Comments
-Each comment is scored against two pattern sets:
+Comment analysis runs in two stages:
 
-**BOT** (any 1 match):
+### Stage 1 — Bot Pattern Matching
+If any of these patterns match, the comment is immediately flagged `BOT`:
 - Phone number obfuscation (`+91 98XXXXX`)
 - WhatsApp / Telegram links
 - Crypto / forex investment spam
 - Earn-money / passive income claims
 - Prize / giveaway scams
-- Sub-for-sub / follow-for-follow
+- Sub-for-sub / follow-for-follow solicitation
 - Shortened URLs (bit.ly, tinyurl, rb.gy …)
 - Excessive repeated characters
 - DM-harvesting patterns
+- Promotional hashtag spam
+- Suspicious external links
 
-**AI** (2 or more matches):
-- Generic template praise ("great video very informative")
-- "Keep up the great work"
-- "Well-explained / well-presented"
-- "Looking forward to more content"
-- "I really enjoyed / appreciated this"
-- "This is exactly what I needed"
-- "I learned a lot from this" … and more
+### Stage 2 — Linguistic Analysis
+Comments that pass Stage 1 are scored across four dimensions (0–100 each):
 
-**HUMAN**: everything else (including slang, mixed languages, personal references).
+| Signal | Weight | High score means… |
+|--------|--------|-------------------|
+| Burstiness | 30% | Unnaturally uniform sentence lengths |
+| Lexical Diversity | 25% | Low vocabulary variety (repetitive words) |
+| Filler Phrases | 25% | Generic AI praise patterns |
+| Punctuation Uniformity | 20% | Missing punctuation variation |
 
-### Videos & Shorts
-Checks the video title and channel name against:
-- AI tool keywords: `midjourney`, `stable diffusion`, `sora`, `runway ml`, `pika labs`, `kling ai`, `dall-e`, `veo 2`, `ai generated`, `text to video`, `ai voice`, `ai narrator` …
-- AI channel keywords: `ai animation`, `ai studio`, `ai shorts`, `ai films` …
-- Manually flagged channels (set via popup)
+A combined score ≥ 60 is flagged `AI`; below 60 is `HUMAN`.
+
+Clicking a badge opens the **Detection Report** panel with the full score breakdown and an explanation of each signal.
 
 ---
 
@@ -69,27 +67,18 @@ Checks the video title and channel name against:
 3. Enable **Developer mode** (top-right toggle)
 4. Click **Load unpacked**
 5. Select the project folder
-6. Navigate to YouTube — badges will appear automatically
-
----
-
-## Roadmap
-
-- [ ] Connect to a dedicated AI backend API for deeper analysis
-- [ ] Analyse full channel history (upload frequency, content patterns)
-- [ ] Confidence scores instead of binary labels
-- [ ] User feedback / reporting to improve detection accuracy
-- [ ] Firefox support (MV3)
+6. Navigate to any YouTube video — badges appear automatically on comments
 
 ---
 
 ## Tech Stack
 
 - Chrome Extension Manifest V3
-- Vanilla JavaScript (no build step)
+- Vanilla JavaScript (no build step, no external dependencies)
 - CSS injected into YouTube's page
 - `chrome.storage.local` for settings persistence
 - `MutationObserver` + `yt-navigate-finish` for YouTube SPA compatibility
+- `WeakMap` for per-badge metadata (no memory leaks)
 
 ---
 
